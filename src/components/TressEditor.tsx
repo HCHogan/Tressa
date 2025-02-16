@@ -9,20 +9,11 @@ interface TressEditorProps {
     activeTab: string
     setActiveTab: (tab: string) => void
     setContent: (content: string) => void
-    vimMode: boolean
 }
 
-export function TressEditor({ content, language, activeTab, setActiveTab, setContent, vimMode }: TressEditorProps) {
+export function TressEditor({ content, language, activeTab, setActiveTab, setContent}: TressEditorProps) {
     return (
-        <>
-            {/*<div className="flex items-center space-x-2 mb-4">
-        <Switch
-          id="vim-mode"
-          checked={vimMode}
-          onCheckedChange={setVimMode}
-        />
-        <Label htmlFor="vim-mode">Vim Mode</Label>
-      </div>*/}
+        <div>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="edit" className="flex items-center gap-2">
@@ -40,14 +31,13 @@ export function TressEditor({ content, language, activeTab, setActiveTab, setCon
                         value={content}
                         onChange={setContent}
                         height="400px"
-                        vimMode={vimMode}
                     />
                 </TabsContent>
                 <TabsContent value="preview" className="border rounded-md p-4 mt-2">
                     <CodePreview content={content} language={language} />
                 </TabsContent>
             </Tabs>
-        </>
+        </div>
     )
 }
 

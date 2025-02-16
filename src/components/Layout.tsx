@@ -1,89 +1,45 @@
-import { ReactNode, useState, useEffect } from 'react'
+import { ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoonIcon, SunIcon, HomeIcon, PlusCircleIcon, MenuIcon, UserIcon } from 'lucide-react'
+import { MoonIcon, SunIcon, HomeIcon, PlusCircleIcon , UserIcon } from 'lucide-react'
 import { useTheme } from "@/components/theme-provider"
-import { API_URL, VERSION_CODE, APP_VERSION } from '@/config'
-
+import { VERSION_CODE, APP_VERSION } from '@/config'
+import { useAuth } from '../hooks/useAuth'
 interface LayoutProps {
     children: ReactNode
 }
-
 export function Layout({ children }: LayoutProps) {
-    const { theme, setTheme } = useTheme()
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
-    const [username, setUsername] = useState('')
+    const { theme, setTheme } = useTheme();
+    const { isLoggedIn, username, logout } = useAuth(); // 从上下文获取状态
     const navigate = useNavigate()
-
-    useEffect(() => {
-        const token = localStorage.getItem('token')
-        setIsLoggedIn(!!token)
-        if (token) {
-            fetch(`${API_URL}/api/auth/me`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    setUsername(data.username)
-                    localStorage.setItem('userId', data.id)
-                })
-
-                .catch(error => console.error('Error fetching user info:', error))
-        }
-    }, [])
-
     const handleLogout = () => {
-        localStorage.removeItem('token')
-        setIsLoggedIn(false)
-        setUsername('')
+        logout()
         navigate('/')
     }
-
-    const NavItems = () => (
-        <>
-            <Link to="/">
-                <Button variant="ghost" className="w-full justify-start">
-                    <HomeIcon className="mr-2 h-4 w-4" />
-                    Home
-                </Button>
-            </Link>
-            {isLoggedIn && (
-                <Link to="/create">
-                    <Button variant="ghost" className="w-full justify-start">
-                        <PlusCircleIcon className="mr-2 h-4 w-4" />
-                        Create
-                    </Button>
-                </Link>
-            )}
-        </>
-    )
-
     return (
         <div className="min-h-screen bg-background flex flex-col">
             <header className="border-b">
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center">
                     <div className="flex items-center">
-                        <Sheet>
-                            <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" className="md:hidden">
-                                    <MenuIcon className="h-5 w-5" />
-                                </Button>
-                            </SheetTrigger>
-                            <SheetContent side="left" className="w-[200px] sm:w-[240px]">
-                                <nav className="flex flex-col space-y-4">
-                                    <NavItems />
-                                </nav>
-                            </SheetContent>
-                        </Sheet>
                         <Link to="/" className="text-2xl font-bold text-primary ml-2">Tressa</Link>
                     </div>
                     <nav className="hidden md:flex items-center space-x-4">
-                        <NavItems />
+                        <Link to="/">
+                            <Button variant="ghost" className="w-full justify-start">
+                                <HomeIcon className="mr-2 h-4 w-4" />
+                                Home
+                            </Button>
+                        </Link>
+                        {isLoggedIn && (
+                            <Link to="/create">
+                                <Button variant="ghost" className="w-full justify-start">
+                                    <PlusCircleIcon className="mr-2 h-4 w-4" />
+                                    Create
+                                </Button>
+                            </Link>
+                        )}
                     </nav>
                     <div className="flex items-center space-x-4">
                         <Button
@@ -102,7 +58,7 @@ export function Layout({ children }: LayoutProps) {
                                     </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                            <DropdownMenuContent align="center">
                                 {isLoggedIn ? (
                                     <>
                                         <DropdownMenuItem onSelect={() => navigate('/profile')}>Profile</DropdownMenuItem>
@@ -122,7 +78,7 @@ export function Layout({ children }: LayoutProps) {
             <main className="flex-grow container mx-auto px-4 py-8">
                 {children}
             </main>
-            <footer className="border-t">
+            <footer className="border-t ">
                 <div className="container mx-auto px-4 py-4 text-center text-muted-foreground">
                     Version {APP_VERSION}({VERSION_CODE}) - Tressa is now in very early stages of development.
                 </div>

@@ -6,13 +6,13 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from 'lucide-react'
 import { API_URL } from '@/config'
-
+import { useAuth } from '@/hooks/useAuth'
 export function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
-
+  const { updateUserInfo } = useAuth();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
@@ -24,6 +24,8 @@ export function Login() {
       if (response.ok) {
         const data = await response.json()
         localStorage.setItem('token', data.access_token)
+        console.log('token ture')
+        updateUserInfo(data.username);
         navigate('/')
       } else {
         setError('Invalid username or password')
