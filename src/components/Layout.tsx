@@ -6,7 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoonIcon, SunIcon, HomeIcon, PlusCircleIcon , UserIcon } from 'lucide-react'
 import { useTheme } from "@/components/theme-provider"
 import { VERSION_CODE, APP_VERSION } from '@/config'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '@/hooks/useAuth'
 interface LayoutProps {
     children: ReactNode
 }

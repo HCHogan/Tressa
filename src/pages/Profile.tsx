@@ -72,7 +72,7 @@ export function Profile() {
                     <strong>User ID:</strong> {profile.id}
                 </div>
                 <Button className="w-full" onClick={() => navigate('/create')}>
-                    Create New Tressa
+                    Create New Tress
                 </Button>
             </CardContent>
         </Card>
