@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,13 +21,12 @@ import { TressEditor } from '@/components/TressEditor'
 
 
 export function CreateTress() {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [language, setLanguage] = useState('plaintext')
-  const [isPublic, setIsPublic] = useState(true)
-  const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState('edit')
-  const [vimMode, setVimMode] = useState(false)
+  const [title, setTitle] = useState('')// 标题
+  const [content, setContent] = useState('')// 内容
+  const [language, setLanguage] = useState('plaintext')// 编程语言
+  const [isPublic, setIsPublic] = useState(true)// 是否公开
+  const [error, setError] = useState('')// 错误信息
+  const [activeTab, setActiveTab] = useState('edit') // 当前激活的标签
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -85,18 +84,6 @@ export function CreateTress() {
                 </DialogHeader>
                 <div className="flex items-center space-x-2">
                   <MousePointerBan className="h-5 w-5"/>
-                  <label
-                      htmlFor="vim-mode"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Vim Mode
-                  </label>
-                  <Switch
-                      id="vim-mode"
-                      checked={vimMode}
-                      onCheckedChange={setVimMode}
-                  />
-
                 </div>
               </DialogContent>
             </Dialog>
@@ -159,7 +146,6 @@ export function CreateTress() {
               activeTab={activeTab}
               setActiveTab={setActiveTab}
               setContent={setContent}
-              vimMode={vimMode}
           />
           <Button type="submit" className="w-full flex items-center justify-center gap-2">
             <Save className="h-4 w-4" />
