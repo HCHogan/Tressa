@@ -8,3 +8,17 @@ export interface Tress {
   owner_id: number;
 }
 
+export interface LoginData {
+  username: string;
+  password: string;
+}
+
+export interface RegisterData extends LoginData {
+  email: string;
+}
+
+export interface UserProfile {
+  id: number;
+  username: string;
+  email: string;
+}
