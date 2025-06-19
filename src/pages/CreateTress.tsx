@@ -1,10 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertCircle,
   Code,
@@ -13,34 +8,21 @@ import {
   FileCode,
   Save,
   Settings,
-  MousePointerBan,
+  ArrowLeft,
 } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { createTress } from "@/api/tress";
 import { languageOptions } from "@/lib/languageOptions";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { TressEditor } from "@/components/TressEditor";
+import { VisionSidebar } from "@/components/VisionSidebar";
 
 export function CreateTress() {
-  const [title, setTitle] = useState(""); // 标题
-  const [content, setContent] = useState(""); // 内容
-  const [language, setLanguage] = useState("plaintext"); // 编程语言
-  const [isPublic, setIsPublic] = useState(true); // 是否公开
-  const [error, setError] = useState(""); // 错误信息
-  const [activeTab, setActiveTab] = useState("edit"); // 当前激活的标签
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [language, setLanguage] = useState("plaintext");
+  const [isPublic, setIsPublic] = useState(true);
+  const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,10 +34,21 @@ export function CreateTress() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!title.trim()) {
+      setError("请输入标题");
+      return;
+    }
+    if (!content.trim()) {
+      setError("请输入内容");
+      return;
+    }
+
     setError("");
+    setIsLoading(true);
+
     try {
       const data = await createTress({
-        title,
+        title: title.trim(),
         content,
         language,
         is_public: isPublic,
@@ -65,103 +58,215 @@ export function CreateTress() {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("An unknown error occurred while creating the tress");
+        setError("创建 Tress 时发生未知错误");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Create New Tress</h1>
-        <div className="flex items-center space-x-2">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Settings className="h-[1.2rem] w-[1.2rem]" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Editor Settings</DialogTitle>
-                <DialogDescription>Customize your editor</DialogDescription>
-              </DialogHeader>
-              <div className="flex items-center space-x-2">
-                <MousePointerBan className="h-5 w-5" />
-              </div>
-            </DialogContent>
-          </Dialog>
+    <div className="max-w-6xl mx-auto space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={() => navigate("/")}
+            className="w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-slate-600 transition-all duration-200"
+          >
+            <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+          </button>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
+              创建新的 Tress
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              分享你的代码片段
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* Error Alert */}
       {error && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <div className="flat-card border-red-200 dark:border-red-800 p-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-red-900 dark:text-red-200">
+                创建失败
+              </h3>
+              <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+            </div>
+          </div>
+        </div>
       )}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="title" className="flex items-center gap-2">
-              <FileCode className="h-4 w-4" />
-              Title
-            </Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
+
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Basic Info */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Title */}
+          <div className="space-y-3">
+            <label className="flex items-center space-x-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <FileCode className="w-4 h-4" />
+              <span>标题</span>
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="给你的代码片段起个好名字..."
+                className="input-modern w-full"
+                required
+              />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="language" className="flex items-center gap-2">
-              <Code className="h-4 w-4" />
-              Language
-            </Label>
-            <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Language" />
-              </SelectTrigger>
-              <SelectContent>
+
+          {/* Language */}
+          <div className="space-y-3">
+            <label className="flex items-center space-x-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <Code className="w-4 h-4" />
+              <span>编程语言</span>
+            </label>
+            <div className="relative">
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="input-modern w-full appearance-none cursor-pointer"
+              >
                 {languageOptions.map((lang) => (
-                  <SelectItem key={lang.value} value={lang.value}>
+                  <option key={lang.value} value={lang.value}>
                     {lang.label}
-                  </SelectItem>
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                <svg
+                  className="w-4 h-4 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="public"
-            checked={isPublic}
-            onCheckedChange={setIsPublic}
-          />
-          <Label htmlFor="public" className="flex items-center gap-2">
-            {isPublic ? (
-              <Globe className="h-4 w-4" />
-            ) : (
-              <Lock className="h-4 w-4" />
-            )}
-            {isPublic ? "Public" : "Private"}
-          </Label>
+
+        {/* Privacy Setting */}
+        <div className="flat-card p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center">
+                {isPublic ? (
+                  <Globe className="w-6 h-6 text-white" />
+                ) : (
+                  <Lock className="w-6 h-6 text-white" />
+                )}
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                  {isPublic ? "公开分享" : "私人收藏"}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {isPublic
+                    ? "所有人都可以查看和搜索到你的代码"
+                    : "只有你可以查看这个代码片段"}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsPublic(!isPublic)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                isPublic ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                  isPublic ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
         </div>
-        <TressEditor
-          content={content}
-          language={language}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          setContent={setContent}
-        />
-        <Button
-          type="submit"
-          className="w-full flex items-center justify-center gap-2"
-        >
-          <Save className="h-4 w-4" />
-          Create Tress
-        </Button>
+
+        {/* Editor with Embedded Sidebar */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              内容
+            </h3>
+            <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+              <Settings className="w-4 h-4" />
+              <span>编辑器设置</span>
+            </div>
+          </div>
+
+          <div className="border border-gray-200/60 dark:border-slate-700/60 rounded-2xl overflow-hidden">
+            <div className="flex h-[600px]">
+              {/* Embedded Sidebar */}
+              <div className="w-20 flex-shrink-0">
+                <VisionSidebar
+                  mode="editor"
+                  editorActiveTab={activeTab}
+                  onEditorTabChange={setActiveTab}
+                  embedded={true}
+                />
+              </div>
+
+              {/* Editor Area */}
+              <div className="flex-1 min-w-0">
+                <TressEditor
+                  content={content}
+                  language={language}
+                  activeTab={activeTab}
+                  setContent={setContent}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-800">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="btn-ghost"
+            disabled={isLoading}
+          >
+            取消
+          </button>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="btn-primary flex items-center space-x-2 min-w-[140px] justify-center"
+          >
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>创建中...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                <span>创建 Tress</span>
+              </>
+            )}
+          </button>
+        </div>
       </form>
     </div>
   );

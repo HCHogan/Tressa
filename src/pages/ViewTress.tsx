@@ -1,37 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import {
   AlertCircle,
   Copy,
   ArrowUp,
   ChevronLeft,
   Trash2,
-  Type,
   ZoomIn,
   ZoomOut,
   RotateCcw,
   Check,
+  Globe,
+  Lock,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Prism, Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -53,6 +33,8 @@ export function ViewTress() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [userCanDelete, setUserCanDelete] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -62,6 +44,7 @@ export function ViewTress() {
     if (!id) return;
     const fetchTress = async () => {
       try {
+        setLoading(true);
         const data = await getTressById(id);
         setTress(data);
         setWordCount(data.content.trim().split(/\s+/).length);
@@ -71,8 +54,10 @@ export function ViewTress() {
         if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError("An unknown error occurred while fetching the tress");
+          setError("获取 Tress 时发生未知错误");
         }
+      } finally {
+        setLoading(false);
       }
     };
     fetchTress();
@@ -92,14 +77,14 @@ export function ViewTress() {
       await deleteTressById(id);
       navigate("/");
       toast({
-        title: "Tress deleted",
-        description: "The tress has been successfully deleted.",
+        title: "删除成功",
+        description: "Tress 已成功删除。",
       });
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("An unknown error occurred while deleting the tress");
+        setError("删除 Tress 时发生未知错误");
       }
     }
   };
@@ -108,9 +93,13 @@ export function ViewTress() {
     if (tress) {
       navigator.clipboard.writeText(tress.content);
       setIsCopied(true);
+      toast({
+        title: "复制成功",
+        description: "代码已复制到剪贴板",
+      });
       setTimeout(() => setIsCopied(false), 2000);
     }
-  }, [tress]);
+  }, [tress, toast]);
 
   const handleBackToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -120,122 +109,176 @@ export function ViewTress() {
     setFontSize(newSize);
   };
 
-  if (error) {
+  const getLanguageColor = (language: string) => {
+    const colors: Record<string, string> = {
+      javascript: "bg-yellow-500",
+      typescript: "bg-blue-500",
+      python: "bg-green-500",
+      java: "bg-red-500",
+      go: "bg-cyan-500",
+      rust: "bg-orange-500",
+      markdown: "bg-gray-500",
+      html: "bg-orange-500",
+      css: "bg-blue-500",
+      json: "bg-green-500",
+    };
+    return colors[language.toLowerCase()] || "bg-gray-500";
+  };
+
+  if (loading) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-gray-200 dark:border-gray-700 rounded-full animate-spin border-t-blue-600"></div>
+        </div>
+      </div>
     );
   }
 
-  if (!tress) {
-    return <div>Loading...</div>;
+  if (error) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <div className="flat-card border-red-200 dark:border-red-800 p-6">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+              <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-red-900 dark:text-red-200">
+                加载失败
+              </h3>
+              <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
+  if (!tress) return null;
+
   return (
-    <Card className="max-w-4xl mx-auto my-8">
-      <CardHeader className="flex flex-col space-y-4">
-        <div className="flex justify-between items-center">
+    <div className="max-w-6xl mx-auto space-y-8">
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={() => navigate("/")}
+            className="w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-slate-600 transition-all duration-200"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+          </button>
           <div>
-            <CardTitle className="text-2xl font-bold">{tress.title}</CardTitle>
-            <CardDescription>By {tress.owner_username}</CardDescription>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
+              {tress.title}
+            </h1>
+            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-xs">
+                  {tress.owner_username[0].toUpperCase()}
+                </div>
+                <span>{tress.owner_username}</span>
+              </div>
+              <span>•</span>
+              <span>{wordCount} 字符</span>
+              <span>•</span>
+              <div className="flex items-center space-x-1">
+                {tress.is_public ? (
+                  <Globe className="w-3 h-3" />
+                ) : (
+                  <Lock className="w-3 h-3" />
+                )}
+                <span>{tress.is_public ? "公开" : "私有"}</span>
+              </div>
+            </div>
           </div>
-          <Button variant="outline" onClick={() => navigate("/")}>
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
         </div>
-        <div className="flex justify-between items-center flex-wrap gap-2">
-          <div className="flex items-center space-x-2">
-            <Badge variant="secondary">{tress.language}</Badge>
-            <span className="text-sm text-muted-foreground">
-              Words: {wordCount}
-            </span>
+
+        <div className="flex items-center space-x-3">
+          <div
+            className={`px-4 py-2 rounded-full ${getLanguageColor(
+              tress.language
+            )} text-white text-sm font-medium`}
+          >
+            {tress.language}
           </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
+        </div>
+      </div>
+
+      {/* Action Bar */}
+      <div className="flat-card p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            {/* Font Size Controls */}
+            <div className="flex items-center space-x-2 bg-gray-100 dark:bg-slate-700 rounded-xl p-2">
+              <button
+                onClick={() => handleFontSizeChange(Math.max(12, fontSize - 1))}
+                className="w-8 h-8 rounded-lg bg-white dark:bg-slate-600 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-slate-500 transition-colors"
+              >
+                <ZoomOut className="w-4 h-4" />
+              </button>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[50px] text-center">
+                {fontSize}px
+              </span>
+              <button
+                onClick={() => handleFontSizeChange(Math.min(24, fontSize + 1))}
+                className="w-8 h-8 rounded-lg bg-white dark:bg-slate-600 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-slate-500 transition-colors"
+              >
+                <ZoomIn className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => handleFontSizeChange(16)}
+                className="w-8 h-8 rounded-lg bg-white dark:bg-slate-600 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-slate-500 transition-colors"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            {/* Copy Button */}
+            <button
               onClick={handleCopy}
-              className="transition-all duration-300 ease-in-out"
-              style={{
-                backgroundColor: isCopied ? "var(--primary)" : "transparent",
-                color: isCopied ? "var(--primary-foreground)" : "inherit",
-              }}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
+                isCopied
+                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                  : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50"
+              }`}
             >
               {isCopied ? (
-                <Check className="h-4 w-4 mr-2" />
+                <>
+                  <Check className="w-4 h-4" />
+                  <span>已复制</span>
+                </>
               ) : (
-                <Copy className="h-4 w-4 mr-2" />
+                <>
+                  <Copy className="w-4 h-4" />
+                  <span>复制</span>
+                </>
               )}
-              {isCopied ? "Copied" : "Copy"}
-            </Button>
+            </button>
+
+            {/* Delete Button */}
             {userCanDelete && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      your tress.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete}>
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <button
+                onClick={() => setShowDeleteDialog(true)}
+                className="flex items-center space-x-2 px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl font-medium hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>删除</span>
+              </button>
             )}
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="flex justify-between items-center mb-4 bg-secondary p-2 rounded-md">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleFontSizeChange(Math.max(12, fontSize - 1))}
-            >
-              <ZoomOut className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleFontSizeChange(Math.min(24, fontSize + 1))}
-            >
-              <ZoomIn className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleFontSizeChange(16)}
-            >
-              <RotateCcw className="h-4 w-4" />
-            </Button>
-            <span className="text-sm">
-              <Type className="h-4 w-4 inline mr-1" />
-              {fontSize}px
-            </span>
-          </div>
-        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flat-card p-6 overflow-hidden">
         {tress.language === "markdown" ? (
           <div
             className={`prose ${
               theme === "dark" ? "prose-invert" : ""
-            } max-w-none overflow-auto p-4 `}
+            } max-w-none overflow-auto`}
             style={{ fontSize }}
           >
             <ReactMarkdown
@@ -256,7 +299,7 @@ export function ViewTress() {
                     </Prism>
                   ) : (
                     <code
-                      className="rounded-md bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm"
+                      className="rounded-lg bg-gray-100 dark:bg-gray-800 px-2 py-1 font-mono text-sm"
                       {...props}
                     >
                       {children}
@@ -272,22 +315,63 @@ export function ViewTress() {
           <SyntaxHighlighter
             language={tress.language.toLowerCase()}
             style={theme === "dark" ? tomorrow : oneLight}
-            customStyle={{ fontSize: `${fontSize}px` }}
-            className="rounded-md"
+            customStyle={{
+              fontSize: `${fontSize}px`,
+              background: "transparent",
+              padding: 0,
+              margin: 0,
+            }}
+            className="rounded-xl"
           >
             {tress.content}
           </SyntaxHighlighter>
         )}
-      </CardContent>
-      {showBackToTop && (
-        <Button
-          className="fixed bottom-4 right-4 transition-opacity duration-300 ease-in-out"
-          onClick={handleBackToTop}
-          style={{ opacity: showBackToTop ? 1 : 0 }}
-        >
-          <ArrowUp className="h-4 w-4" />
-        </Button>
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteDialog && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="flat-card p-6 max-w-md mx-4">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto">
+                <Trash2 className="w-8 h-8 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  确认删除
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  此操作无法撤销。这将永久删除你的 Tress。
+                </p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setShowDeleteDialog(false)}
+                  className="btn-ghost flex-1"
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-xl transition-colors"
+                >
+                  删除
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
-    </Card>
+
+      {/* Back to Top Button */}
+      {showBackToTop && (
+        <button
+          onClick={handleBackToTop}
+          className="fixed bottom-8 right-8 w-12 h-12 bg-white dark:bg-slate-800 rounded-full border border-gray-200 dark:border-slate-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-slate-700 transition-all duration-200 hover:scale-110"
+        >
+          <ArrowUp className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+        </button>
+      )}
+    </div>
   );
 }

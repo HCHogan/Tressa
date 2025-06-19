@@ -1,43 +1,38 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MonacoEditor } from '@/components/MonacoEditor'
-import { CodePreview } from '@/components/CodePreview'
-import { Code, Eye } from 'lucide-react'
+import { MonacoEditor } from "@/components/MonacoEditor";
+import { CodePreview } from "@/components/CodePreview";
 
 interface TressEditorProps {
-    content: string
-    language: string
-    activeTab: string
-    setActiveTab: (tab: string) => void
-    setContent: (content: string) => void
+  content: string;
+  language: string;
+  activeTab: string;
+  setContent: (content: string) => void;
 }
 
-export function TressEditor({ content, language, activeTab, setActiveTab, setContent}: TressEditorProps) {
-    return (
-        <div>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="edit" className="flex items-center gap-2">
-                        <Code className="h-4 w-4" />
-                        Edit
-                    </TabsTrigger>
-                    <TabsTrigger value="preview" className="flex items-center gap-2">
-                        <Eye className="h-4 w-4" />
-                        Preview
-                    </TabsTrigger>
-                </TabsList>
-                <TabsContent value="edit" className="border rounded-md p-4 mt-2">
-                    <MonacoEditor
-                        language={language}
-                        value={content}
-                        onChange={setContent}
-                        height="400px"
-                    />
-                </TabsContent>
-                <TabsContent value="preview" className="border rounded-md p-4 mt-2">
-                    <CodePreview content={content} language={language} />
-                </TabsContent>
-            </Tabs>
-        </div>
-    )
+export function TressEditor({
+  content,
+  language,
+  activeTab,
+  setContent,
+}: TressEditorProps) {
+  return (
+    <div className="w-full h-full flex flex-col">
+      {/* Tab Content */}
+      <div className="flex-1 overflow-hidden">
+        {activeTab === "edit" ? (
+          <div className="h-full">
+            <MonacoEditor
+              language={language}
+              value={content}
+              onChange={setContent}
+              height="100%"
+            />
+          </div>
+        ) : (
+          <div className="h-full p-4 overflow-auto bg-white dark:bg-slate-800">
+            <CodePreview content={content} language={language} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
-
