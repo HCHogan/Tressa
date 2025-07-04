@@ -27,10 +27,10 @@ export function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex flex-col">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 nav-modern">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 group">
@@ -136,13 +136,13 @@ export function Layout({ children }: LayoutProps) {
       </nav>
 
       {/* Main content */}
-      <main className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+      <main className="px-6 lg:px-8 py-8 flex-1">
         <div className="animate-fade-in">{children}</div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-t border-gray-200 dark:border-slate-700 mt-20">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+      <footer className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-t border-gray-200 dark:border-slate-700 mt-auto">
+        <div className="px-6 lg:px-8 py-8">
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center space-x-3">
               <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center">

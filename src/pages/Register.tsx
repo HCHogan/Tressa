@@ -11,6 +11,9 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { register } from "@/api/auth";
+import { ButtonLoading } from "@/components/ui/loading";
+import { useToast } from "@/hooks/useToast";
+import { ToastContainer } from "@/components/ui/ToastContainer";
 
 export function Register() {
   const [username, setUsername] = useState("");
@@ -22,6 +25,7 @@ export function Register() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { toasts, removeToast, success, error: showError } = useToast();
 
   const validateForm = () => {
     if (password !== confirmPassword) {
@@ -48,12 +52,17 @@ export function Register() {
 
     try {
       await register({ username, email, password });
-      navigate("/login");
+      success("注册成功", "正在跳转到登录页面...");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
+        showError("注册失败", err.message);
       } else {
         setError("注册时发生未知错误");
+        showError("注册失败", "注册时发生未知错误");
       }
     } finally {
       setIsLoading(false);
@@ -79,8 +88,8 @@ export function Register() {
   const passwordStrength = getPasswordStrength();
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-[80vh] flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8 animate-fade-in">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center mx-auto">
@@ -273,23 +282,14 @@ export function Register() {
             </div>
 
             {/* Register Button */}
-            <button
+            <ButtonLoading
               type="submit"
-              disabled={isLoading}
-              className="btn-primary w-full flex items-center justify-center space-x-2 h-12"
+              loading={isLoading}
+              className="w-full h-12"
             >
-              {isLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>注册中...</span>
-                </>
-              ) : (
-                <>
-                  <span>创建账户</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
+              <span>创建账户</span>
+              <ArrowRight className="w-4 h-4" />
+            </ButtonLoading>
           </form>
 
           {/* Terms */}
@@ -336,6 +336,9 @@ export function Register() {
           </Link>
         </div>
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

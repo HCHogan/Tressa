@@ -181,19 +181,27 @@ export function VisionSidebar({
   // 浮动样式（用于主页）
   return (
     <div
-      className="group fixed left-3 top-1/2 -translate-y-1/2 z-40"
+      className="group fixed left-6 top-1/2 -translate-y-1/2 z-40 will-change-transform"
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
+      style={{
+        transform: 'translate3d(0, -50%, 0)',
+        backfaceVisibility: 'hidden',
+      }}
     >
       <ul
         className={`
           relative flex flex-col gap-2 p-2
           bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl
           border border-gray-200/60 dark:border-slate-700/60
-          shadow-lg
+          shadow-lg shadow-black/5 dark:shadow-black/20
           transition-all duration-300 ease-out transform-gpu
           ${isExpanded ? "rounded-[20px] scale-105" : "rounded-[30px]"}
         `}
+        style={{
+          willChange: 'transform, border-radius',
+          backfaceVisibility: 'hidden',
+        }}
       >
         {sidebarItems.map((item) => {
           const IconComponent = item.icon;

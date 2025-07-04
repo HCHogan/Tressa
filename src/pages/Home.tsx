@@ -12,6 +12,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { getPublicTresses, getMyTresses } from "@/api/tress";
 import { VisionSidebar } from "@/components/VisionSidebar";
+import { PageLoading, CardSkeleton } from "@/components/ui/loading";
 
 export function Home() {
   const [publicTresses, setPublicTresses] = useState<Tress[]>([]);
@@ -67,7 +68,7 @@ export function Home() {
   const renderTressCard = (tress: Tress, index: number) => (
     <div
       key={tress.id}
-      className="group card-modern hover:scale-[1.02] cursor-pointer p-6"
+      className="group card-modern hover:scale-[1.02] cursor-pointer p-6 flex flex-col h-full"
       style={{ animationDelay: `${index * 0.1}s` }}
       onClick={() => navigate(`/tress/${tress.id}`)}
     >
@@ -107,15 +108,15 @@ export function Home() {
         </div>
       </div>
 
-      {/* Content preview */}
-      <div className="mb-4">
+      {/* Content preview - 使用 flex-1 让它占据剩余空间 */}
+      <div className="flex-1 mb-4">
         <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3 leading-relaxed">
           {tress.content || "无内容预览"}
         </p>
       </div>
 
-      {/* Footer */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800">
+      {/* Footer - 始终在底部 */}
+      <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800 mt-auto">
         <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center space-x-1">
             <CodeIcon className="w-3 h-3" />
@@ -206,7 +207,7 @@ export function Home() {
       <VisionSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* 主内容区域 */}
-      <div className="ml-20 p-8 space-y-8">
+      <div className="ml-20 mr-8 p-8 space-y-8">
         {/* 页面标题 */}
         <div className="flex items-center justify-between">
           <div>
@@ -234,10 +235,10 @@ export function Home() {
         {/* 内容区域 */}
         <div className="min-h-[500px]">
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="relative">
-                <div className="w-16 h-16 border-4 border-gray-200 dark:border-gray-700 rounded-full animate-spin border-t-blue-600"></div>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <CardSkeleton key={index} />
+              ))}
             </div>
           ) : (
             <>

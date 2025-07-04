@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { getMe } from "@/api/auth";
 import { UserProfile } from "@/types";
+import { PageLoading } from "@/components/ui/loading";
 
 export function Profile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -43,13 +44,7 @@ export function Profile() {
   }, [navigate]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-gray-200 dark:border-gray-700 rounded-full animate-spin border-t-blue-600"></div>
-        </div>
-      </div>
-    );
+    return <PageLoading message="加载用户信息中..." />;
   }
 
   if (error) {
@@ -75,7 +70,7 @@ export function Profile() {
   if (!profile) return null;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="px-8 space-y-8">
       {/* Header */}
       <div className="text-center space-y-4">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">

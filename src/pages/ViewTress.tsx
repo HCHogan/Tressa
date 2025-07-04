@@ -12,6 +12,7 @@ import {
   Check,
   Globe,
   Lock,
+  ExternalLink,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Prism, Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -20,10 +21,11 @@ import {
   oneLight,
 } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Tress } from "@/types";
-import { getTressById, deleteTressById } from "@/api/tress";
+import { getTressById, deleteTressById, getTressRawUrl } from "@/api/tress";
 import { useTheme } from "@/components/theme-provider";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { ContentLoading } from "@/components/ui/loading";
 
 export function ViewTress() {
   const [tress, setTress] = useState<Tress | null>(null);
@@ -126,13 +128,7 @@ export function ViewTress() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-gray-200 dark:border-gray-700 rounded-full animate-spin border-t-blue-600"></div>
-        </div>
-      </div>
-    );
+    return <ContentLoading />;
   }
 
   if (error) {
@@ -158,7 +154,7 @@ export function ViewTress() {
   if (!tress) return null;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="px-8 space-y-8">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center space-x-4">
@@ -258,6 +254,17 @@ export function ViewTress() {
               )}
             </button>
 
+            {/* Raw Link Button */}
+            <a
+              href={getTressRawUrl(id!)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+              <span>Raw</span>
+            </a>
+
             {/* Delete Button */}
             {userCanDelete && (
               <button
@@ -273,13 +280,13 @@ export function ViewTress() {
       </div>
 
       {/* Content */}
-      <div className="flat-card p-6 overflow-hidden">
+      <div className="flat-card p-6 overflow-hidden min-w-0">
         {tress.language === "markdown" ? (
           <div
             className={`prose ${
               theme === "dark" ? "prose-invert" : ""
-            } max-w-none overflow-auto`}
-            style={{ fontSize }}
+            } max-w-none overflow-auto min-w-full`}
+            style={{ fontSize, minWidth: '600px' }}
           >
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
@@ -312,19 +319,22 @@ export function ViewTress() {
             </ReactMarkdown>
           </div>
         ) : (
-          <SyntaxHighlighter
-            language={tress.language.toLowerCase()}
-            style={theme === "dark" ? tomorrow : oneLight}
-            customStyle={{
-              fontSize: `${fontSize}px`,
-              background: "transparent",
-              padding: 0,
-              margin: 0,
-            }}
-            className="rounded-xl"
-          >
-            {tress.content}
-          </SyntaxHighlighter>
+          <div style={{ minWidth: '600px' }}>
+            <SyntaxHighlighter
+              language={tress.language.toLowerCase()}
+              style={theme === "dark" ? tomorrow : oneLight}
+              customStyle={{
+                fontSize: `${fontSize}px`,
+                background: "transparent",
+                padding: 0,
+                margin: 0,
+                minWidth: '100%',
+              }}
+              className="rounded-xl"
+            >
+              {tress.content}
+            </SyntaxHighlighter>
+          </div>
         )}
       </div>
 
@@ -367,7 +377,7 @@ export function ViewTress() {
       {showBackToTop && (
         <button
           onClick={handleBackToTop}
-          className="fixed bottom-8 right-8 w-12 h-12 bg-white dark:bg-slate-800 rounded-full border border-gray-200 dark:border-slate-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-slate-700 transition-all duration-200 hover:scale-110"
+          className="fixed bottom-24 right-8 w-12 h-12 bg-white dark:bg-slate-800 rounded-full border border-gray-200 dark:border-slate-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-slate-700 transition-all duration-200 hover:scale-110 shadow-lg z-50"
         >
           <ArrowUp className="w-5 h-5 text-gray-700 dark:text-gray-300" />
         </button>

@@ -3,6 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { AlertCircle, User, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { login } from "@/api/auth";
+import { ButtonLoading } from "@/components/ui/loading";
+import { useToast } from "@/hooks/useToast";
+import { ToastContainer } from "@/components/ui/ToastContainer";
 
 export function Login() {
   const [username, setUsername] = useState("");
@@ -12,6 +15,7 @@ export function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { updateUserInfo } = useAuth();
+  const { toasts, removeToast, success, error: showError } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,12 +26,17 @@ export function Login() {
       const data = await login({ username, password });
       localStorage.setItem("token", data.access_token);
       updateUserInfo(data.username);
-      navigate("/");
+      success("登录成功", "欢迎回来！");
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
+        showError("登录失败", err.message);
       } else {
         setError("登录时发生未知错误");
+        showError("登录失败", "登录时发生未知错误");
       }
     } finally {
       setIsLoading(false);
@@ -35,8 +44,8 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-[80vh] flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8 animate-fade-in">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center mx-auto">
@@ -126,23 +135,14 @@ export function Login() {
             </div>
 
             {/* Login Button */}
-            <button
+            <ButtonLoading
               type="submit"
-              disabled={isLoading}
-              className="btn-primary w-full flex items-center justify-center space-x-2 h-12"
+              loading={isLoading}
+              className="w-full h-12"
             >
-              {isLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>登录中...</span>
-                </>
-              ) : (
-                <>
-                  <span>登录</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
+              <span>登录</span>
+              <ArrowRight className="w-4 h-4" />
+            </ButtonLoading>
           </form>
 
           {/* Divider */}
@@ -169,6 +169,9 @@ export function Login() {
           </Link>
         </div>
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }
