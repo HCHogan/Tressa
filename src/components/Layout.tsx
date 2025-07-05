@@ -8,7 +8,7 @@ import {
   UserIcon,
   MenuIcon,
   ScrollTextIcon,
-  TrendingUpIcon,
+  Bot,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { VERSION_CODE, APP_VERSION } from "@/config";
@@ -56,6 +56,7 @@ export function Layout({ children }: LayoutProps) {
       label: "公开分享",
       path: "/",
       tab: "public",
+      color: "bg-primary hover:bg-primary-dark text-white",
       action: createMenuAction(() => navigate("/?tab=public"))
     },
     {
@@ -63,6 +64,7 @@ export function Layout({ children }: LayoutProps) {
       label: "我的创作",
       path: "/",
       tab: "mine",
+      color: "bg-secondary hover:bg-secondary-dark text-white",
       requiresAuth: true,
       action: createMenuAction(() => {
         if (isLoggedIn) {
@@ -73,16 +75,18 @@ export function Layout({ children }: LayoutProps) {
       })
     },
     {
-      icon: TrendingUpIcon,
-      label: "热门趋势",
+      icon: Bot,
+      label: "Sanuki回复",
       path: "/",
-      tab: "trending",
-      action: createMenuAction(() => navigate("/?tab=trending"))
+      tab: "sanuki",
+      color: "bg-accent hover:bg-accent-dark text-white",
+      action: createMenuAction(() => navigate("/?tab=sanuki"))
     },
     {
       icon: PlusCircleIcon,
       label: "创建新的",
       path: "/create",
+      color: "bg-success hover:bg-success-dark text-white",
       requiresAuth: false, // 允许匿名用户创建
       action: createMenuAction(() => navigate("/create"))
     }
@@ -208,7 +212,7 @@ export function Layout({ children }: LayoutProps) {
                           onClick={item.action}
                           className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left transition-all duration-200 group min-h-[48px] mobile-menu-item ${
                             isActive
-                              ? "bg-primary hover:bg-primary-dark text-white"
+                              ? item.color
                               : "bg-transparent hover:bg-gray-100/80 dark:hover:bg-slate-800/80"
                           }`}
                         >

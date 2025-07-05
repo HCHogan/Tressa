@@ -3,7 +3,7 @@ import {
   ScrollTextIcon,
   UserIcon,
   PlusCircleIcon,
-  TrendingUpIcon,
+  Bot,
   Code,
   Eye,
 } from "lucide-react";
@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 interface SidebarItem {
-  id: "public" | "mine" | "trending" | "create" | "edit" | "preview";
+  id: "public" | "mine" | "sanuki" | "create" | "edit" | "preview";
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   color: string;
@@ -21,8 +21,8 @@ interface SidebarItem {
 
 interface VisionSidebarProps {
   // 主页模式
-  activeTab?: "public" | "mine" | "trending";
-  onTabChange?: (tab: "public" | "mine" | "trending") => void;
+  activeTab?: "public" | "mine" | "sanuki";
+  onTabChange?: (tab: "public" | "mine" | "sanuki") => void;
 
   // 编辑器模式
   mode?: "home" | "editor";
@@ -61,9 +61,9 @@ export function VisionSidebar({
       requiresAuth: true,
     },
     {
-      id: "trending",
-      icon: TrendingUpIcon,
-      label: "热门趋势",
+      id: "sanuki",
+      icon: Bot,
+      label: "Sanuki回复",
       color: "bg-accent hover:bg-accent-dark text-white",
     },
     {
@@ -111,7 +111,7 @@ export function VisionSidebar({
     if (item.action) {
       item.action();
     } else if (item.id !== "create" && onTabChange) {
-      onTabChange(item.id as "public" | "mine" | "trending");
+      onTabChange(item.id as "public" | "mine" | "sanuki");
     }
   };
 

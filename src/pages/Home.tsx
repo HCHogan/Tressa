@@ -17,8 +17,8 @@ import { CardSkeleton } from "@/components/ui/loading";
 
 export function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<"public" | "mine" | "trending">(
-    (searchParams.get("tab") as "public" | "mine" | "trending") || "public"
+  const [activeTab, setActiveTab] = useState<"public" | "mine" | "sanuki">(
+    (searchParams.get("tab") as "public" | "mine" | "sanuki") || "public"
   );
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
@@ -51,14 +51,14 @@ export function Home() {
   });
 
   // 处理 tab 切换，同时更新 URL 参数
-  const handleTabChange = (tab: "public" | "mine" | "trending") => {
+  const handleTabChange = (tab: "public" | "mine" | "sanuki") => {
     setActiveTab(tab);
     setSearchParams({ tab });
   };
 
   // 监听URL参数变化，同步activeTab状态
   useEffect(() => {
-    const tabFromUrl = searchParams.get("tab") as "public" | "mine" | "trending";
+    const tabFromUrl = searchParams.get("tab") as "public" | "mine" | "sanuki";
     if (tabFromUrl && tabFromUrl !== activeTab) {
       setActiveTab(tabFromUrl);
     }
@@ -207,8 +207,8 @@ export function Home() {
         return "公开分享";
       case "mine":
         return "我的创作";
-      case "trending":
-        return "热门趋势";
+      case "sanuki":
+        return "Sanuki回复";
       default:
         return "公开分享";
     }
@@ -220,8 +220,8 @@ export function Home() {
         return publicTresses;
       case "mine":
         return userTresses;
-      case "trending":
-        return []; // TODO: 实现热门趋势数据
+      case "sanuki":
+        return []; // TODO: 实现Sanuki回复数据
       default:
         return publicTresses;
     }
@@ -233,8 +233,8 @@ export function Home() {
         return publicPagination;
       case "mine":
         return userPagination;
-      case "trending":
-        return null; // TODO: 实现热门趋势分页
+      case "sanuki":
+        return null; // TODO: 实现Sanuki回复分页
       default:
         return publicPagination;
     }
@@ -246,8 +246,8 @@ export function Home() {
         return publicLoading;
       case "mine":
         return userLoading;
-      case "trending":
-        return false; // TODO: 实现热门趋势加载状态
+      case "sanuki":
+        return false; // TODO: 实现Sanuki回复加载状态
       default:
         return publicLoading;
     }
@@ -259,8 +259,8 @@ export function Home() {
         return publicError;
       case "mine":
         return userError;
-      case "trending":
-        return null; // TODO: 实现热门趋势错误状态
+      case "sanuki":
+        return null; // TODO: 实现Sanuki回复错误状态
       default:
         return publicError;
     }
@@ -274,8 +274,8 @@ export function Home() {
       case "mine":
         loadUserPage(page);
         break;
-      case "trending":
-        // TODO: 实现热门趋势分页
+      case "sanuki":
+        // TODO: 实现Sanuki回复分页
         break;
     }
   };
@@ -298,10 +298,10 @@ export function Home() {
           action: () => navigate("/create"),
           actionText: "开始创作",
         };
-      case "trending":
+      case "sanuki":
         return {
-          title: "暂无热门内容",
-          description: "热门趋势功能即将上线",
+          title: "暂无Sanuki回复",
+          description: "Sanuki回复功能开发中",
           action: () => navigate("/create"),
           actionText: "创建 Tress",
         };
@@ -331,7 +331,7 @@ export function Home() {
             <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm md:text-base">
               {activeTab === "public" && "公开Tress一览"}
               {activeTab === "mine" && "管理你的Tress"}
-              {activeTab === "trending" && "探索当前最受欢迎的Tress"}
+              {activeTab === "sanuki" && "查看Sanuki给你的回复"}
             </p>
           </div>
 
