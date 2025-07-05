@@ -196,7 +196,7 @@ export function UnifiedCodeBlock({
       {/* 代码内容 */}
       <SyntaxHighlighter
         language={language.toLowerCase()}
-        style={codeTheme}
+        style={codeTheme as any}
         PreTag="pre"
         showLineNumbers={showLineNumbers}
         lineNumberStyle={lineNumberStyle}

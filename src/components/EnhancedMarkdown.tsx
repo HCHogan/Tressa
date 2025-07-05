@@ -80,7 +80,6 @@ export function EnhancedMarkdown({
   className = '',
   fontSize = '16px',
   enableMath = true,
-  enableCodeHighlighting = true,
   showLineNumbers = true
 }: EnhancedMarkdownProps) {
   // 预处理内容，修复表格中的管道符号问题

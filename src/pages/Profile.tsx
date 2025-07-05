@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AlertCircle,
-  User,
   Mail,
   Calendar,
   Edit3,

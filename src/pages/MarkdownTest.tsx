@@ -1,4 +1,3 @@
-import React from 'react'
 import { EnhancedMarkdown } from '@/components/EnhancedMarkdown'
 
 const testContent = `# Enhanced Markdown Test
