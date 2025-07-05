@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AlertCircle, User, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { login } from "@/api/auth";
+import { login, getMe } from "@/api/auth";
 import { ButtonLoading } from "@/components/ui/loading";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/ToastContainer";
@@ -23,9 +23,13 @@ export function Login() {
     setIsLoading(true);
 
     try {
-      const data = await login({ username, password });
-      localStorage.setItem("token", data.access_token);
-      updateUserInfo(data.username);
+      const loginData = await login({ username, password });
+      localStorage.setItem("token", loginData.access_token);
+
+      // 获取用户信息
+      const userData = await getMe();
+      updateUserInfo(userData.username, userData.id.toString());
+
       success("登录成功", "欢迎回来！");
       setTimeout(() => {
         navigate("/");
@@ -45,7 +49,7 @@ export function Login() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8 animate-fade-in">
+      <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center mx-auto">

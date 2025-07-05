@@ -89,7 +89,7 @@ export function Register() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8 animate-fade-in">
+      <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="w-16 h-16 bg-blue-600 rounded-3xl flex items-center justify-center mx-auto">

@@ -71,7 +71,7 @@ export function VisionSidebar({
       icon: PlusCircleIcon,
       label: "创建新的",
       color: "bg-success hover:bg-success-dark text-white",
-      requiresAuth: true,
+      requiresAuth: false, // 允许匿名用户创建
       action: () => navigate("/create"),
     },
   ];
@@ -181,7 +181,7 @@ export function VisionSidebar({
   // 浮动样式（用于主页）
   return (
     <div
-      className="group fixed left-6 top-1/2 -translate-y-1/2 z-40 will-change-transform"
+      className="group fixed left-6 top-1/2 -translate-y-1/2 z-40 will-change-transform hidden md:block"
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
       style={{

@@ -1,11 +1,9 @@
 import { apiClient } from "./apiClient";
-import { Tress } from "@/types";
+import { CreateTressData, PageResponse, TreePreview } from "@/types";
 import { API_URL } from "@/config";
 
-type CreateTressData = Omit<Tress, "id" | "owner_id" | "owner_username">;
-
-export const createTress = (data: CreateTressData) => {
-  return apiClient("/tress/", { method: "POST", body: data });
+export const createTress = (data: CreateTressData, needsAuth: boolean = true) => {
+  return apiClient("/tress/", { method: "POST", body: data, needsAuth });
 };
 
 export const getPublicTresses = () => {
@@ -44,4 +42,12 @@ export const getTressRawContent = async (id: string): Promise<string> => {
 
 export const getTressRawUrl = (id: string): string => {
   return `${API_URL}/api/tress/${id}/raw`;
+};
+
+export const getPublicTressesPages = (page: number = 1, pageSize: number = 20): Promise<PageResponse<TreePreview>> => {
+  return apiClient(`/tress/public/pages?page=${page}&page_size=${pageSize}`, { needsAuth: false });
+};
+
+export const getMyTressesPages = (page: number = 1, pageSize: number = 20): Promise<PageResponse<TreePreview>> => {
+  return apiClient(`/tress/my/pages?page=${page}&page_size=${pageSize}`);
 };

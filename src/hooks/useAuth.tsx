@@ -11,7 +11,7 @@ interface AuthContextType {
   isLoggedIn: boolean;
   username: string;
   logout: () => void;
-  updateUserInfo: (username: string) => void;
+  updateUserInfo: (username: string, userId?: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -23,15 +23,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (token) {
       getMe()
         .then((data) => {
-          updateUserInfo(data.username);
-          localStorage.setItem("userId", data.id);
+          updateUserInfo(data.username, data.id.toString());
         })
         .catch(() => logout());
     }
   }, []);
-  const updateUserInfo = (username: string) => {
+  const updateUserInfo = (username: string, userId?: string) => {
     setIsLoggedIn(true);
     setUsername(username);
+    if (userId) {
+      localStorage.setItem("userId", userId);
+    }
   };
   const logout = () => {
     localStorage.removeItem("token");

@@ -178,6 +178,583 @@
 }
 
 @layer components {
+  /* Enhanced Markdown Styles - Based on md2pic.py design */
+  .markdown-enhanced {
+    font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.7;
+    color: rgb(var(--foreground));
+    letter-spacing: 0.01em;
+    font-size: 16px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .markdown-enhanced h1,
+  .markdown-enhanced h2,
+  .markdown-enhanced h3,
+  .markdown-enhanced h4,
+  .markdown-enhanced h5,
+  .markdown-enhanced h6 {
+    margin-top: 2em;
+    margin-bottom: 0.8em;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .markdown-enhanced h1 {
+    font-size: 2.4em;
+    border-bottom: 2px solid rgb(var(--border));
+    padding-bottom: 0.5em;
+    margin-bottom: 1.2em;
+  }
+
+  .markdown-enhanced h2 {
+    font-size: 1.8em;
+    border-bottom: 1px solid rgb(var(--border));
+    padding-bottom: 0.4em;
+    margin-bottom: 1em;
+  }
+
+  .markdown-enhanced h3 { font-size: 1.5em; }
+  .markdown-enhanced h4 { font-size: 1.25em; }
+  .markdown-enhanced h5 { font-size: 1.1em; }
+  .markdown-enhanced h6 {
+    font-size: 1.05em;
+    color: rgb(var(--muted-foreground));
+  }
+
+  .markdown-enhanced p,
+  .markdown-enhanced li {
+    margin-bottom: 1.4em;
+    text-align: justify;
+    text-justify: inter-word;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-size: 1em;
+  }
+
+  /* Enhanced inline code styling */
+  .markdown-enhanced code:not(pre code) {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.12));
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    border-radius: 4px;
+    font-size: 0.9em;
+    padding: 0.15em 0.4em;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    color: rgb(var(--primary));
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(59, 130, 246, 0.1);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-all;
+    vertical-align: baseline;
+    line-height: 1;
+    display: inline-block;
+    margin: 0 0.1em;
+  }
+
+  /* Dark mode inline code */
+  .dark .markdown-enhanced code:not(pre code) {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.2));
+    border-color: rgba(59, 130, 246, 0.25);
+    color: rgb(147, 197, 253);
+  }
+
+  /* Code in headings */
+  .markdown-enhanced h1 code,
+  .markdown-enhanced h2 code,
+  .markdown-enhanced h3 code,
+  .markdown-enhanced h4 code,
+  .markdown-enhanced h5 code,
+  .markdown-enhanced h6 code {
+    font-size: 0.8em;
+    padding: 0.1em 0.3em;
+    vertical-align: middle;
+    line-height: 1;
+    margin: 0;
+    border-radius: 3px;
+    font-weight: 500;
+    max-height: 1.2em;
+    overflow: hidden;
+  }
+
+  /* Enhanced code block container - 根据主题自适应 */
+  .markdown-enhanced .code-block-container {
+    position: relative;
+    margin: 1.5rem 0;
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #f8f9fa;
+    border: 1px solid rgba(229, 231, 235, 0.6);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  /* 暗色模式下的代码块容器 */
+  .dark .markdown-enhanced .code-block-container {
+    background: #1a1b26;
+    border: 1px solid rgba(55, 65, 81, 0.3);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Ensure code blocks have proper spacing and styling */
+  .markdown-enhanced .code-block-container pre {
+    margin: 0 !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Remove any extra containers from SyntaxHighlighter */
+  .markdown-enhanced .code-block-container > pre {
+    position: relative;
+  }
+
+  /* Language label for code blocks - 调整位置更靠近复制按钮 */
+  .markdown-enhanced .language-label {
+    position: absolute;
+    top: 8px;
+    right: 56px; /* 更靠近复制按钮 */
+    padding: 6px 14px;
+    font-size: 11px;
+    color: #6b7280;
+    background: rgba(249, 250, 251, 0.9);
+    border-radius: 8px;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+    z-index: 10;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+  }
+
+  /* 暗色模式下的语言标签 */
+  .dark .markdown-enhanced .language-label {
+    color: #9ca3af;
+    background: rgba(31, 41, 55, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* macOS-style window controls - only on the container, not the pre tag */
+  .markdown-enhanced .code-block-container::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 16px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ff5f56;
+    box-shadow:
+      20px 0 0 #ffbd2e,
+      40px 0 0 #27ca40;
+    z-index: 10;
+  }
+
+  .markdown-enhanced .code-block-container pre {
+    background: transparent !important;
+    border-radius: 16px;
+    overflow: hidden;
+    margin: 0;
+    position: relative;
+    max-width: 100%;
+    overflow-x: auto;
+    border: none;
+  }
+
+  .markdown-enhanced .code-block-container pre code {
+    background: transparent !important;
+    border: 0;
+    padding: 3px 10px;
+    padding-top: 1px;
+    font-size: 14px !important;
+    line-height: 1.7;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
+    display: block;
+    position: relative;
+    z-index: 3;
+    max-width: 100%;
+    white-space: pre;
+    overflow-x: auto;
+    word-wrap: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  /* 虚拟滚动代码块样式 */
+  .markdown-enhanced .virtualized-code-container {
+    background: #1a1b26;
+    border-radius: 0 0 16px 16px;
+    position: relative;
+  }
+
+  .markdown-enhanced .virtualized-code-container::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .markdown-enhanced .virtualized-code-container::-webkit-scrollbar-track {
+    background: rgba(55, 65, 81, 0.3);
+    border-radius: 4px;
+  }
+
+  .markdown-enhanced .virtualized-code-container::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 4px;
+  }
+
+  .markdown-enhanced .virtualized-code-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.7);
+  }
+
+  /* Enhanced blockquote styling */
+  .markdown-enhanced blockquote {
+    border-left: 4px solid rgb(var(--border));
+    margin: 1.5em 0;
+    padding: 1em 1.5em;
+    color: rgb(var(--muted-foreground));
+    background: linear-gradient(135deg, rgba(var(--muted), 0.05), rgba(var(--muted), 0.1));
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    position: relative;
+    font-size: 1em;
+  }
+
+  .markdown-enhanced blockquote::before {
+    content: '"';
+    font-size: 4em;
+    color: rgba(var(--muted-foreground), 0.3);
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    font-family: Georgia, serif;
+  }
+
+  /* Enhanced list styling */
+  .markdown-enhanced ul,
+  .markdown-enhanced ol {
+    margin-bottom: 1.5em;
+  }
+
+  .markdown-enhanced li {
+    margin-bottom: 0.5em;
+    line-height: 1.6;
+  }
+
+  /* Custom bullet points for unordered lists */
+  .markdown-enhanced ul {
+    list-style: none;
+    padding-left: 1.5em;
+  }
+
+  .markdown-enhanced ul li {
+    position: relative;
+    margin-bottom: 0.5em;
+    line-height: 1.6;
+  }
+
+  .markdown-enhanced ul li::before {
+    content: '•';
+    color: rgb(var(--muted-foreground));
+    font-size: 1.2em;
+    font-weight: bold;
+    position: absolute;
+    margin-left: -1.2em;
+    margin-top: -0.1em;
+  }
+
+  /* Nested unordered lists */
+  .markdown-enhanced ul ul {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    padding-left: 1.5em;
+  }
+
+  .markdown-enhanced ul ul li::before {
+    content: '◦';
+    font-size: 1.1em;
+    color: rgb(var(--muted-foreground));
+  }
+
+  .markdown-enhanced ul ul ul li::before {
+    content: '▪';
+    font-size: 1em;
+    color: rgb(var(--muted-foreground));
+  }
+
+  /* Enhanced ordered lists */
+  .markdown-enhanced ol {
+    counter-reset: item;
+    padding-left: 1.5em;
+    list-style: none;
+  }
+
+  .markdown-enhanced ol li {
+    counter-increment: item;
+    position: relative;
+    margin-bottom: 0.5em;
+    line-height: 1.6;
+  }
+
+  .markdown-enhanced ol li::before {
+    content: counter(item) '.';
+    color: rgb(var(--muted-foreground));
+    font-weight: 700;
+    font-size: 1.1em;
+    position: absolute;
+    margin-left: -1.5em;
+    width: 1.2em;
+    text-align: right;
+  }
+
+  /* Enhanced table styling */
+  .markdown-enhanced table {
+    border-collapse: collapse;
+    margin: 2em 0;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    table-layout: auto;
+    font-size: 1em;
+    border: 1px solid rgb(var(--border));
+  }
+
+  .markdown-enhanced th,
+  .markdown-enhanced td {
+    border: 1px solid rgb(var(--border));
+    padding: 12px 16px;
+    text-align: left;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 200px;
+  }
+
+  .markdown-enhanced th {
+    background: linear-gradient(135deg, rgb(var(--muted)), rgba(var(--muted), 0.8));
+    font-weight: 700;
+    color: rgb(var(--foreground));
+    text-transform: uppercase;
+    font-size: 0.9em;
+    letter-spacing: 0.05em;
+  }
+
+  .markdown-enhanced tr:nth-child(2n) {
+    background-color: rgba(var(--muted), 0.3);
+  }
+
+  .markdown-enhanced tr:hover {
+    background-color: rgba(var(--primary), 0.05);
+    transition: background-color 0.2s ease;
+  }
+
+  /* Enhanced link styling */
+  .markdown-enhanced a {
+    color: rgb(var(--primary));
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s ease;
+    font-size: 1em;
+  }
+
+  .markdown-enhanced a:hover {
+    border-bottom-color: rgb(var(--primary));
+    background: linear-gradient(135deg, rgba(var(--primary), 0.05), rgba(var(--primary), 0.1));
+    padding: 2px 4px;
+    border-radius: 4px;
+    margin: -2px -4px;
+  }
+
+  /* Enhanced horizontal rule */
+  .markdown-enhanced hr {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgb(var(--border)), transparent);
+    margin: 3em 0;
+  }
+
+  /* KaTeX styling enhancements */
+  .markdown-enhanced .katex {
+    font-size: 1.1em;
+  }
+
+  .markdown-enhanced .katex-inline {
+    padding: 0.1em 0.2em;
+    background: linear-gradient(135deg, rgba(139, 69, 19, 0.05), rgba(139, 69, 19, 0.1));
+    border-radius: 4px;
+    border: 1px solid rgba(139, 69, 19, 0.15);
+    display: inline-block;
+    vertical-align: baseline;
+    max-height: none;
+    overflow: visible;
+    line-height: 1.2;
+    min-height: 1.2em;
+  }
+
+  .markdown-enhanced .katex-display {
+    margin: 1.5em 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    min-height: auto;
+    height: auto;
+    padding: 0.5em 0;
+  }
+
+  /* 确保 KaTeX 块级公式容器有足够的高度 */
+  .markdown-enhanced .katex-display > .katex {
+    min-height: auto;
+    height: auto;
+    overflow: visible;
+    display: block;
+    text-align: center;
+  }
+
+  /* 修复 KaTeX 内部元素的高度问题 */
+  .markdown-enhanced .katex-display .katex-html {
+    min-height: auto;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Enhanced emphasis styling */
+  .markdown-enhanced strong {
+    font-weight: 700;
+    color: rgb(var(--foreground));
+  }
+
+  .markdown-enhanced em {
+    font-style: italic;
+    color: rgb(var(--muted-foreground));
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .markdown-enhanced {
+      font-size: 14px;
+    }
+
+    .markdown-enhanced h1 { font-size: 2em; }
+    .markdown-enhanced h2 { font-size: 1.6em; }
+    .markdown-enhanced h3 { font-size: 1.3em; }
+
+    /* 移除对代码块的强制样式覆盖，让组件自己控制 */
+    .markdown-enhanced .code-block-container {
+      margin: 1rem 0;
+    }
+
+    .markdown-enhanced table {
+      font-size: 0.9em;
+    }
+
+    .markdown-enhanced th,
+    .markdown-enhanced td {
+      padding: 8px 12px;
+      max-width: 150px;
+    }
+  }
+
+  /* Mobile-specific optimizations */
+  @media (max-width: 640px) {
+    /* Improve touch targets - 但排除代码块内的按钮 */
+    button:not(.unified-code-block button), a:not(.unified-code-block a) {
+      min-height: 44px;
+    }
+
+    /* 代码块内的按钮保持原有大小 */
+    .unified-code-block button {
+      min-height: auto;
+    }
+
+    /* Better spacing for mobile */
+    .flat-card, .glass-card {
+      margin-bottom: 1rem;
+    }
+
+    /* 移动端卡片优化 */
+    .card-modern {
+      padding: 1rem;
+    }
+
+    /* 移动端语言标签优化 */
+    .card-modern .language-tag {
+      max-width: 60px;
+      font-size: 10px;
+      padding: 0.25rem 0.5rem;
+    }
+
+    /* Optimize text sizes for mobile */
+    h1 {
+      font-size: 1.75rem !important;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 1.5rem !important;
+      line-height: 1.3;
+    }
+
+    /* 移除对所有 pre 的强制样式，让代码块组件自己控制 */
+    .markdown-enhanced .code-block-container {
+      margin: 1rem 0;
+    }
+
+    /* 只对非代码块的 pre 元素应用移动端优化 */
+    pre:not(.unified-code-block pre):not(.markdown-enhanced pre) {
+      font-size: 12px !important;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Modern mobile menu styling */
+    .mobile-menu-trigger {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .mobile-menu-content {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    /* Enhanced mobile menu item animations */
+    .mobile-menu-item {
+      transform: translateX(0);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mobile-menu-item:hover {
+      transform: translateX(2px);
+    }
+
+    .mobile-menu-item:active {
+      transform: translateX(0) scale(0.98);
+    }
+
+    /* Mobile menu icon container animations */
+    .mobile-menu-icon {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mobile-menu-item:hover .mobile-menu-icon {
+      transform: scale(1.05);
+    }
+
+    /* Smooth mobile menu overlay */
+    .mobile-menu-overlay {
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+
+  }
+
   /* Glass morphism effect */
   .glass-card {
     @apply bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-gray-200/60 dark:border-slate-700/60 rounded-2xl shadow-lg;
@@ -367,6 +944,9 @@
   .lang-shell {
     @apply bg-gray-700 text-white;
   }
+  .lang-nix {
+    @apply bg-blue-700 text-white;
+  }
 
   /* Animations */
   .animate-fade-in {
@@ -467,6 +1047,42 @@
     will-change: transform, border-radius;
     backface-visibility: hidden;
     transform: translateZ(0);
+  }
+
+  /* ViewTress 页面样式优化 */
+  .viewtress-container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+  }
+
+  .viewtress-content {
+    width: 100%;
+    padding: 1.5rem;
+    min-height: 200px;
+  }
+
+  /* 移动端 ViewTress 优化 */
+  @media (max-width: 640px) {
+    .viewtress-container {
+      padding: 0.5rem 1rem;
+    }
+
+    .viewtress-content {
+      padding: 0.75rem;
+    }
+  }
+
+  /* 平板端 ViewTress 优化 */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .viewtress-container {
+      padding: 0.75rem 1.5rem;
+    }
+
+    .viewtress-content {
+      padding: 1.25rem;
+    }
   }
 
   /* 加载动画优化 */
