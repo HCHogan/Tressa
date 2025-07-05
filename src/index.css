@@ -413,7 +413,7 @@
     background: rgba(156, 163, 175, 0.7);
   }
 
-  /* Enhanced blockquote styling */
+  /* Enhanced blockquote styling - 参考 md2pic.py 设计 */
   .markdown-enhanced blockquote {
     border-left: 4px solid rgb(var(--border));
     margin: 1.5em 0;
@@ -424,16 +424,24 @@
     font-style: italic;
     position: relative;
     font-size: 1em;
+    z-index: 1;
+  }
+
+  .markdown-enhanced blockquote > * {
+    position: relative;
+    z-index: 2;
   }
 
   .markdown-enhanced blockquote::before {
     content: '"';
     font-size: 4em;
-    color: rgba(var(--muted-foreground), 0.3);
+    color: rgba(var(--border), 0.2);
     position: absolute;
-    top: -10px;
+    top: -20px;
     left: 10px;
     font-family: Georgia, serif;
+    opacity: 0.3;
+    z-index: 0;
   }
 
   /* Enhanced list styling */
@@ -513,7 +521,7 @@
     text-align: right;
   }
 
-  /* Enhanced table styling */
+  /* Enhanced table styling - 参考 md2pic.py 设计 */
   .markdown-enhanced table {
     border-collapse: collapse;
     margin: 2em 0;
@@ -538,7 +546,7 @@
   }
 
   .markdown-enhanced th {
-    background: linear-gradient(135deg, rgb(var(--muted)), rgba(var(--muted), 0.8));
+    background: linear-gradient(135deg, #beadad47, #beadad47);
     font-weight: 700;
     color: rgb(var(--foreground));
     text-transform: uppercase;
@@ -546,14 +554,27 @@
     letter-spacing: 0.05em;
   }
 
-  .markdown-enhanced tr:nth-child(2n) {
-    background-color: rgba(var(--muted), 0.3);
+  /* 隔行变色 - 参考 md2pic.py，只对tbody中的行应用 */
+  .markdown-enhanced tbody tr:nth-child(2n) {
+    background-color: rgba(var(--muted), 0.5);
   }
 
-  .markdown-enhanced tr:hover {
+  /* 悬停效果 - 只对tbody中的行应用 */
+  .markdown-enhanced tbody tr:hover {
     background-color: rgba(var(--primary), 0.05);
     transition: background-color 0.2s ease;
   }
+
+  /* 确保表头不受影响 */
+  .markdown-enhanced thead tr {
+    background: linear-gradient(135deg, rgb(var(--muted)), rgba(var(--muted), 0.8)) !important;
+  }
+
+  .markdown-enhanced thead tr:hover {
+    background: linear-gradient(135deg, rgb(var(--muted)), rgba(var(--muted), 0.8)) !important;
+  }
+
+
 
   /* Enhanced link styling */
   .markdown-enhanced a {

@@ -15,6 +15,25 @@ function decodeHtmlEntities(text: string): string {
   return textarea.value
 }
 
+// 预处理表格中的管道符号，避免解析错误
+function preprocessTablePipes(content: string): string {
+  // 匹配表格行（以|开头或包含|的行）
+  const lines = content.split('\n')
+  const processedLines = lines.map(line => {
+    // 检查是否是表格行
+    if (line.trim().startsWith('|') || (line.includes('|') && line.includes('---'))) {
+      // 在表格行中，保护代码块和内联代码中的管道符号
+      return line.replace(/`([^`]*\|[^`]*)`/g, (_, codeContent) => {
+        // 将代码中的管道符号临时替换为特殊标记
+        return '`' + codeContent.replace(/\|/g, '&#124;') + '`'
+      })
+    }
+    return line
+  })
+
+  return processedLines.join('\n')
+}
+
 interface EnhancedMarkdownProps {
   content: string
   className?: string
@@ -64,6 +83,9 @@ export function EnhancedMarkdown({
   enableCodeHighlighting = true,
   showLineNumbers = true
 }: EnhancedMarkdownProps) {
+  // 预处理内容，修复表格中的管道符号问题
+  const processedContent = preprocessTablePipes(content)
+
   // Configure plugins based on props
   const remarkPlugins: any[] = [remarkGfm]
   const rehypePlugins: any[] = [rehypeRaw]
@@ -173,7 +195,7 @@ export function EnhancedMarkdown({
   }
 
   return (
-    <div 
+    <div
       className={`markdown-enhanced ${className}`}
       style={{ fontSize }}
     >
@@ -182,7 +204,7 @@ export function EnhancedMarkdown({
         rehypePlugins={rehypePlugins}
         components={components}
       >
-        {content}
+        {processedContent}
       </ReactMarkdown>
     </div>
   )
