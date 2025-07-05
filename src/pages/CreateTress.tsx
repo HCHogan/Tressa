@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AlertCircle,
@@ -10,6 +10,7 @@ import {
   Settings,
   ArrowLeft,
   Clock,
+  FileText,
 } from "lucide-react";
 import { createTress } from "@/api/tress";
 import { ButtonLoading } from "@/components/ui/loading";
@@ -17,6 +18,7 @@ import { languageOptions } from "@/lib/languageOptions";
 import { TressEditor } from "@/components/TressEditor";
 import { VisionSidebar } from "@/components/VisionSidebar";
 import { useAuth } from "@/hooks/useAuth";
+import { getUtf8ByteSize, formatByteSize, getContentSizeLimit, getContentSizeLimitText } from "@/lib/utils";
 
 export function CreateTress() {
   const [title, setTitle] = useState("");
@@ -27,8 +29,26 @@ export function CreateTress() {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
   const [isLoading, setIsLoading] = useState(false);
+  const [contentSize, setContentSize] = useState(0);
+  const [isContentTooLarge, setIsContentTooLarge] = useState(false);
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
+
+  // 计算大小限制相关信息（这些不会频繁变化）
+  const sizeLimit = useMemo(() => getContentSizeLimit(isLoggedIn), [isLoggedIn]);
+  const sizeLimitText = useMemo(() => getContentSizeLimitText(isLoggedIn), [isLoggedIn]);
+  const sizePercentage = useMemo(() => Math.min((contentSize / sizeLimit) * 100, 100), [contentSize, sizeLimit]);
+
+  // 简化的防抖逻辑：只在内容变化时使用防抖
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const size = getUtf8ByteSize(content);
+      setContentSize(size);
+      setIsContentTooLarge(size > sizeLimit);
+    }, 500); // 500ms 防抖延迟
+
+    return () => clearTimeout(timeoutId);
+  }, [content, sizeLimit]);
 
   // 设置匿名用户的默认过期时间
   useEffect(() => {
@@ -44,6 +64,12 @@ export function CreateTress() {
     }
     if (!content.trim()) {
       setError("请输入内容");
+      return;
+    }
+
+    // 验证内容大小限制
+    if (isContentTooLarge) {
+      setError(`内容大小超出限制。${isLoggedIn ? '认证用户' : '匿名用户'}最大可上传 ${sizeLimitText}，当前内容大小为 ${formatByteSize(contentSize)}。`);
       return;
     }
 
@@ -76,6 +102,8 @@ export function CreateTress() {
           setError("匿名用户最多只能设置365天的过期时间");
         } else if (err.message.includes("rate limit") || err.message.includes("速率限制")) {
           setError("请求过于频繁，请稍后再试");
+        } else if (err.message.includes("Request Entity Too Large") || err.message.includes("413") || err.message.includes("内容大小超出限制")) {
+          setError(`内容大小超出限制。${isLoggedIn ? '认证用户' : '匿名用户'}最大可上传 ${sizeLimitText}，请减少内容大小后重试。`);
         } else {
           setError(err.message);
         }
@@ -122,7 +150,7 @@ export function CreateTress() {
                   匿名创建
                 </h3>
                 <p className="text-blue-700 dark:text-blue-300 text-sm">
-                  您正在以匿名用户身份创建内容。匿名创建的内容最多保存365天，默认30天后过期。
+                  您正在以匿名用户身份创建内容。匿名创建的内容有时间与大小的限制。
                   <a href="/login" className="underline ml-1">登录</a> 以创建永久内容。
                 </p>
               </div>
@@ -330,6 +358,48 @@ export function CreateTress() {
                 </div>
               </div>
             </div>
+
+            {/* Content Size Indicator - 只在内容达到一定大小或超出限制时显示 */}
+            {(sizePercentage > 50 || isContentTooLarge) && (
+              <div className="px-4 py-3 bg-gray-50 dark:bg-slate-700/50 border-t border-gray-200/60 dark:border-slate-700/60">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center space-x-2">
+                    <FileText className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    <span className="text-gray-600 dark:text-gray-300">
+                      内容大小: {formatByteSize(contentSize)} / {sizeLimitText}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-24 h-2 bg-gray-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ${
+                          isContentTooLarge
+                            ? 'bg-red-500'
+                            : sizePercentage > 80
+                              ? 'bg-yellow-500'
+                              : 'bg-green-500'
+                        }`}
+                        style={{ width: `${Math.min(sizePercentage, 100)}%` }}
+                      />
+                    </div>
+                    <span className={`text-xs font-medium ${
+                      isContentTooLarge
+                        ? 'text-red-600 dark:text-red-400'
+                        : sizePercentage > 80
+                          ? 'text-yellow-600 dark:text-yellow-400'
+                          : 'text-gray-500 dark:text-gray-400'
+                    }`}>
+                      {sizePercentage.toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+                {isContentTooLarge && (
+                  <div className="mt-2 text-xs text-red-600 dark:text-red-400">
+                    ⚠️ 内容大小超出限制，请减少内容后再提交
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Submit Button */}
@@ -346,6 +416,7 @@ export function CreateTress() {
             <ButtonLoading
               onClick={handleSubmit}
               loading={isLoading}
+              disabled={isContentTooLarge}
               className="min-w-[140px]"
             >
               <Save className="w-4 h-4" />
