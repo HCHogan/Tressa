@@ -27,6 +27,7 @@ export function usePaginatedTresses({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [hasLoaded, setHasLoaded] = useState(false); // 添加标记避免重复加载
 
   const loadPage = useCallback(
     async (page: number) => {
@@ -62,12 +63,47 @@ export function usePaginatedTresses({
   }, [loadPage, currentPage]);
 
   // 当 endpoint 或 pageSize 变化时，重置到第一页
+  // 使用 hasLoaded 标记避免重复加载
   useEffect(() => {
-    if (autoLoad) {
+    if (autoLoad && !hasLoaded) {
       setCurrentPage(1);
-      loadPage(1);
+      setHasLoaded(true);
+      // 直接调用 API 而不是通过 loadPage，避免依赖循环
+      const loadInitialPage = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+          let response;
+          if (endpoint === "public") {
+            response = await getPublicTressesPages(1, pageSize);
+          } else {
+            response = await getMyTressesPages(1, pageSize);
+          }
+
+          setTresses(response.items);
+          setPagination(response.pagination);
+          setCurrentPage(1);
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : "加载数据失败";
+          setError(errorMessage);
+          console.error("Error loading initial paginated tresses:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadInitialPage();
     }
-  }, [endpoint, pageSize, autoLoad, loadPage]);
+  }, [endpoint, pageSize, autoLoad, hasLoaded]);
+
+  // 当 endpoint 或 pageSize 变化时，重置 hasLoaded 标记
+  useEffect(() => {
+    setHasLoaded(false);
+    setTresses([]);
+    setPagination(null);
+    setCurrentPage(1);
+  }, [endpoint, pageSize]);
 
   return {
     tresses,

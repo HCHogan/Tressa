@@ -18,16 +18,8 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      getMe()
-        .then((data) => {
-          updateUserInfo(data.username, data.id.toString());
-        })
-        .catch(() => logout());
-    }
-  }, []);
+  const [isInitialized, setIsInitialized] = useState(false);
+
   const updateUserInfo = (username: string, userId?: string) => {
     setIsLoggedIn(true);
     setUsername(username);
@@ -35,12 +27,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("userId", userId);
     }
   };
+
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
     setIsLoggedIn(false);
     setUsername("");
   };
+
+  // 只在初始化时检查一次认证状态，避免重复请求
+  useEffect(() => {
+    if (isInitialized) return; // 如果已经初始化过，直接返回
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      getMe()
+        .then((data) => {
+          updateUserInfo(data.username, data.id.toString());
+        })
+        .catch(() => logout())
+        .finally(() => setIsInitialized(true));
+    } else {
+      setIsInitialized(true);
+    }
+  }, []); // 移除 isInitialized 依赖，只在组件挂载时执行一次
   return (
     <AuthContext.Provider
       value={{ isLoggedIn, username, logout, updateUserInfo }}

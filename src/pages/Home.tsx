@@ -43,7 +43,6 @@ export function Home() {
     loading: userLoading,
     error: userError,
     loadPage: loadUserPage,
-    refresh: refreshUserTresses,
   } = usePaginatedTresses({
     endpoint: "my",
     pageSize: 12,
@@ -57,19 +56,15 @@ export function Home() {
   };
 
   // 监听URL参数变化，同步activeTab状态
+  // 移除 activeTab 依赖，避免循环更新
   useEffect(() => {
     const tabFromUrl = searchParams.get("tab") as "public" | "mine" | "sanuki";
     if (tabFromUrl && tabFromUrl !== activeTab) {
       setActiveTab(tabFromUrl);
     }
-  }, [searchParams, activeTab]);
+  }, [searchParams]); // 只依赖 searchParams
 
-  // 监听登录状态变化，当用户登录后刷新用户数据
-  useEffect(() => {
-    if (isLoggedIn) {
-      refreshUserTresses();
-    }
-  }, [isLoggedIn, refreshUserTresses]);
+  // 移除重复的登录状态监听，因为 usePaginatedTresses 已经通过 autoLoad: isLoggedIn 处理了这个逻辑
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
@@ -321,9 +316,9 @@ export function Home() {
       <VisionSidebar activeTab={activeTab} onTabChange={handleTabChange} />
 
       {/* 主内容区域 */}
-      <div className="md:ml-20 lg:ml-24 xl:ml-28 mx-4 md:mx-8 lg:mx-12 xl:mx-16 p-2 md:p-4 lg:p-6 space-y-4 md:space-y-6 lg:space-y-8 max-w-7xl">
+      <div className="md:ml-20 lg:ml-24 xl:ml-28 mx-4 md:mx-8 lg:mx-12 xl:mx-16 p-2 md:p-4 lg:p-6 max-w-7xl min-h-[calc(100vh-2rem)] md:min-h-[calc(100vh-4rem)] lg:min-h-[calc(100vh-6rem)] flex flex-col">
         {/* 页面标题 */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 mb-4 md:mb-6 lg:mb-8">
           <div className="min-w-0 flex-1">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100">
               {getTabTitle()}
@@ -346,8 +341,8 @@ export function Home() {
           </div>
         </div>
 
-        {/* 内容区域 */}
-        <div className="min-h-[500px] space-y-6">
+        {/* 内容区域 - 使用 flex-1 占据剩余空间 */}
+        <div className="flex-1 flex flex-col space-y-6">
           {/* 错误提示 */}
           {getCurrentError() && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
@@ -357,53 +352,54 @@ export function Home() {
             </div>
           )}
 
-          {getCurrentLoading() ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 12 }).map((_, index) => (
-                <CardSkeleton key={index} />
-              ))}
-            </div>
-          ) : (
-            <>
-              {getCurrentTresses().length > 0 ? (
-                <>
+          {/* 主要内容区域 - 使用 flex-1 占据剩余空间 */}
+          <div className="flex-1">
+            {getCurrentLoading() ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Array.from({ length: 12 }).map((_, index) => (
+                  <CardSkeleton key={index} />
+                ))}
+              </div>
+            ) : (
+              <>
+                {getCurrentTresses().length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {getCurrentTresses().map(renderTressCard)}
                   </div>
-
-                  {/* 分页组件 */}
-                  {getCurrentPagination() && (
-                    <div className="mt-8">
-                      <Pagination
-                        pagination={getCurrentPagination()!}
-                        onPageChange={handlePageChange}
-                        className="justify-center"
-                      />
+                ) : (
+                  <div className="text-center py-20">
+                    <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <CodeIcon className="w-10 h-10 text-gray-400" />
                     </div>
-                  )}
-                </>
-              ) : (
-                <div className="text-center py-20">
-                  <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CodeIcon className="w-10 h-10 text-gray-400" />
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                      {getEmptyStateContent().title}
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 mb-6">
+                      {getEmptyStateContent().description}
+                    </p>
+                    {getEmptyStateContent().actionText && (
+                      <button
+                        onClick={getEmptyStateContent().action}
+                        className="btn-primary"
+                      >
+                        {getEmptyStateContent().actionText}
+                      </button>
+                    )}
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    {getEmptyStateContent().title}
-                  </h3>
-                  <p className="text-gray-500 dark:text-gray-400 mb-6">
-                    {getEmptyStateContent().description}
-                  </p>
-                  {getEmptyStateContent().actionText && (
-                    <button
-                      onClick={getEmptyStateContent().action}
-                      className="btn-primary"
-                    >
-                      {getEmptyStateContent().actionText}
-                    </button>
-                  )}
-                </div>
-              )}
-            </>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* 分页组件 - 固定在底部 */}
+          {getCurrentPagination() && getCurrentTresses().length > 0 && !getCurrentLoading() && (
+            <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
+              <Pagination
+                pagination={getCurrentPagination()!}
+                onPageChange={handlePageChange}
+                className="justify-center"
+              />
+            </div>
           )}
         </div>
       </div>
