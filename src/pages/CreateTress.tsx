@@ -223,7 +223,7 @@ export function CreateTress() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="settings-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Privacy Setting */}
               <div className="space-y-3">
                 <label className="flex items-center space-x-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -234,13 +234,13 @@ export function CreateTress() {
                   )}
                   <span>可见性</span>
                 </label>
-                <div className="p-4 bg-gray-50 dark:bg-slate-700 rounded-xl border border-gray-200 dark:border-slate-600 h-[80px] flex flex-col justify-center">
-                  <div className="flex items-center justify-between">
-                    <div>
+                <div className="settings-card-content p-4 bg-gray-50 dark:bg-slate-700 rounded-xl border border-gray-200 dark:border-slate-600 h-[80px] flex flex-col justify-center">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
                       <div className="font-medium text-gray-900 dark:text-gray-100">
                         {isPublic ? "公开分享" : "私人收藏"}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mt-1 truncate">
                         {isPublic
                           ? "所有人都可以查看和搜索"
                           : "只有你可以查看"}
@@ -249,7 +249,7 @@ export function CreateTress() {
                     <button
                       type="button"
                       onClick={() => setIsPublic(!isPublic)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                      className={`toggle-switch relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                         isPublic ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
                       }`}
                     >
@@ -269,7 +269,7 @@ export function CreateTress() {
                   <Clock className="w-4 h-4 text-orange-600" />
                   <span>过期时间</span>
                 </label>
-                <div className="p-4 bg-gray-50 dark:bg-slate-700 rounded-xl border border-gray-200 dark:border-slate-600 h-[80px] flex flex-col justify-center">
+                <div className="settings-card-content p-4 bg-gray-50 dark:bg-slate-700 rounded-xl border border-gray-200 dark:border-slate-600 h-[80px] flex flex-col justify-center">
                   <div className="space-y-3">
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                       {!isLoggedIn

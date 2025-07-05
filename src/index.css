@@ -546,7 +546,7 @@
   }
 
   .markdown-enhanced th {
-    background: linear-gradient(135deg, #beadad47, #beadad47);
+    background: linear-gradient(135deg, #e3e3e3, #e3e3e3);
     font-weight: 700;
     color: rgb(var(--foreground));
     text-transform: uppercase;
@@ -691,6 +691,33 @@
     /* 代码块内的按钮保持原有大小 */
     .unified-code-block button {
       min-height: auto;
+    }
+
+    /* 开关按钮保持原有大小，不受移动端触摸目标优化影响 */
+    .toggle-switch {
+      min-height: auto !important;
+      min-width: 44px !important; /* 确保触摸目标足够大 */
+    }
+
+    /* 设置区域在移动端的优化 */
+    .settings-grid {
+      grid-template-columns: 1fr !important;
+      gap: 1rem !important;
+    }
+
+    /* 设置卡片内容在移动端的优化 */
+    .settings-card-content {
+      padding: 0.75rem !important;
+      min-height: 70px !important;
+    }
+
+    /* 设置卡片内的文本和开关布局优化 */
+    .settings-card-content .flex {
+      gap: 0.75rem !important;
+    }
+
+    .settings-card-content .flex-1 {
+      min-width: 0 !important;
     }
 
     /* Better spacing for mobile */
