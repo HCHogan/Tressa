@@ -19,7 +19,7 @@ export function TressEditor({
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden">
         {activeTab === "edit" ? (
-          <div className="h-full">
+          <div className="h-full w-full overflow-hidden">
             <MonacoEditor
               language={language}
               value={content}

@@ -133,7 +133,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-medium;
+    @apply bg-background text-foreground font-normal;
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
       sans-serif;
     font-feature-settings: "cv11", "ss01";
@@ -185,6 +185,7 @@
     color: rgb(var(--foreground));
     letter-spacing: 0.01em;
     font-size: 16px;
+    font-weight: 400; /* 明确设置普通文字为400 */
     word-wrap: break-word;
     overflow-wrap: break-word;
   }
@@ -233,6 +234,7 @@
     word-wrap: break-word;
     overflow-wrap: break-word;
     font-size: 1em;
+    font-weight: 400; /* 确保段落和列表项使用正常字重 */
   }
 
   /* Enhanced inline code styling */
@@ -661,6 +663,34 @@
       font-size: 14px;
     }
 
+    /* 确保移动端行内代码字体与桌面端保持一致，但字重稍微加粗 */
+    .markdown-enhanced code:not(pre code) {
+      font-size: 0.9em; /* 保持与桌面端相同的相对字体大小 */
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-weight: 550; /* 移动端稍微加粗 */
+      /* 其他样式保持与桌面端一致 */
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.12));
+      border: 1px solid rgba(59, 130, 246, 0.15);
+      border-radius: 4px;
+      padding: 0.15em 0.4em;
+      color: rgb(var(--primary));
+      box-shadow: 0 1px 2px rgba(59, 130, 246, 0.1);
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-all;
+      vertical-align: baseline;
+      line-height: 1;
+      display: inline-block;
+      margin: 0 0.1em;
+    }
+
+    /* 暗色模式下的移动端行内代码 */
+    .dark .markdown-enhanced code:not(pre code) {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.2));
+      border-color: rgba(59, 130, 246, 0.25);
+      color: rgb(147, 197, 253);
+    }
+
     .markdown-enhanced h1 { font-size: 2em; }
     .markdown-enhanced h2 { font-size: 1.6em; }
     .markdown-enhanced h3 { font-size: 1.3em; }
@@ -686,6 +716,106 @@
     /* Improve touch targets - 但排除代码块内的按钮 */
     button:not(.unified-code-block button), a:not(.unified-code-block a) {
       min-height: 44px;
+    }
+
+    /* Monaco Editor 移动端优化 */
+    .monaco-editor-container,
+    .monaco-editor {
+      /* 确保触摸事件正常工作 */
+      touch-action: manipulation; /* 允许所有触摸操作 */
+      -webkit-touch-callout: default; /* 允许长按菜单 */
+      -webkit-user-select: text; /* 允许文本选择 */
+      user-select: text;
+      /* 优化滚动性能 */
+      -webkit-overflow-scrolling: touch;
+      overflow: visible; /* 确保滚动条可见 */
+      /* 移动端字体加粗 */
+      font-weight: 500 !important;
+    }
+
+    /* Monaco Editor 文本区域优化 */
+    .monaco-editor .view-lines {
+      -webkit-touch-callout: default !important;
+      -webkit-user-select: text !important;
+      user-select: text !important;
+      /* 确保文本可以被选择和复制 */
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+      user-drag: none;
+    }
+
+    /* Monaco Editor 编辑器内容区域 */
+    .monaco-editor .monaco-editor-background {
+      touch-action: pan-x pan-y !important;
+    }
+
+    /* Monaco Editor 滚动容器优化 */
+    .monaco-editor .monaco-scrollable-element {
+      touch-action: manipulation !important;
+      -webkit-overflow-scrolling: touch !important;
+      overflow: auto !important;
+    }
+
+    /* Monaco Editor 视图区域优化 */
+    .monaco-editor .view-overlays,
+    .monaco-editor .view-rulers,
+    .monaco-editor .view-zones {
+      touch-action: manipulation !important;
+    }
+
+    /* Monaco Editor 内容区域字体加粗 */
+    .monaco-editor .monaco-editor-background,
+    .monaco-editor .view-line {
+      font-weight: 500 !important;
+    }
+
+    /* Monaco Editor 上下文菜单优化 */
+    .monaco-menu {
+      font-size: 16px !important; /* 移动端更大的菜单字体 */
+      min-width: 200px !important; /* 确保菜单足够宽 */
+    }
+
+    .monaco-menu .monaco-action-bar .action-item {
+      min-height: 44px !important; /* 确保菜单项有足够的触摸目标 */
+      padding: 8px 12px !important;
+      line-height: 28px !important;
+    }
+
+    .monaco-menu .monaco-action-bar .action-item .action-label {
+      font-size: 16px !important;
+      padding: 0 !important;
+    }
+
+    /* Monaco Editor 滚动条在移动端的优化 */
+    .monaco-editor .monaco-scrollable-element > .scrollbar {
+      width: 14px !important;
+      height: 14px !important;
+      background: rgba(0, 0, 0, 0.1) !important;
+      border-radius: 7px !important;
+    }
+
+    .monaco-editor .monaco-scrollable-element > .scrollbar > .slider {
+      background: rgba(0, 0, 0, 0.3) !important;
+      border-radius: 7px !important;
+    }
+
+    /* Monaco Editor 横向滚动条特别优化 */
+    .monaco-editor .monaco-scrollable-element > .scrollbar.horizontal {
+      bottom: 0 !important;
+      height: 14px !important;
+    }
+
+    /* Monaco Editor 选择高亮优化 */
+    .monaco-editor .selected-text {
+      background-color: rgba(59, 130, 246, 0.3) !important;
+    }
+
+    /* Monaco Editor 光标优化 */
+    .monaco-editor .cursor {
+      background-color: rgb(var(--primary)) !important;
+      width: 2px !important;
     }
 
     /* 代码块内的按钮保持原有大小 */
@@ -752,6 +882,7 @@
     .markdown-enhanced .code-block-container {
       margin: 1rem 0;
     }
+
 
     /* 只对非代码块的 pre 元素应用移动端优化 */
     pre:not(.unified-code-block pre):not(.markdown-enhanced pre) {
